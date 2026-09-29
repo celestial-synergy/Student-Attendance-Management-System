@@ -1,9 +1,39 @@
 from student import Student
 from reports import calculate_percentage, attendance_status
+from database import load_data, save_data
+from validation import validate_roll_number, validate_name, validate_attendance_status
 
 
 students = {}
 attendance_records = {}
+
+
+def load_students():
+    global students, attendance_records
+
+    data = load_data()
+
+    for roll_number, details in data.items():
+        students[roll_number] = Student(
+            roll_number,
+            details["name"],
+            details["course"]
+        )
+
+        attendance_records[roll_number] = details["attendance"]
+
+
+def save_students():
+    data = {}
+
+    for roll_number, student in students.items():
+        data[roll_number] = {
+            "name": student.name,
+            "course": student.course,
+            "attendance": attendance_records[roll_number]
+        }
+
+    save_data(data)
 
 
 def add_student():
@@ -11,12 +41,22 @@ def add_student():
     name = input("Enter Student Name: ")
     course = input("Enter Course: ")
 
+    if not validate_roll_number(roll_number):
+        print("Invalid roll number. Please enter numbers only.")
+        return
+
+    if not validate_name(name):
+        print("Invalid name. Please enter letters only.")
+        return
+
     if roll_number in students:
         print("Student already exists.")
         return
 
     students[roll_number] = Student(roll_number, name, course)
     attendance_records[roll_number] = []
+
+    save_students()
 
     print("Student added successfully!")
 
@@ -55,13 +95,15 @@ def mark_attendance():
         print("Student not found.")
         return
 
-    status = input("Enter Attendance (P/A): ").upper()
+    status = input("Enter Attendance (P/A): ")
 
-    if status not in ["P", "A"]:
-        print("Invalid attendance. Enter P or A.")
+    if not validate_attendance_status(status):
+        print("Invalid attendance. Please enter P or A.")
         return
 
-    attendance_records[roll_number].append(status)
+    attendance_records[roll_number].append(status.upper())
+
+    save_students()
 
     print("Attendance marked successfully!")
 
@@ -103,7 +145,6 @@ def attendance_report():
     for roll_number, student in students.items():
 
         records = attendance_records[roll_number]
-
         total = len(records)
 
         if total == 0:
@@ -125,6 +166,8 @@ def attendance_report():
 
 
 def main():
+
+    load_students()
 
     while True:
 

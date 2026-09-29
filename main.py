@@ -1,0 +1,11 @@
+print("====================================")
+print("   STUDENT ATTENDANCE MANAGEMENT")
+print("====================================")
+
+print("\n1. Add Student")
+print("2. View Students")
+print("3. Search Student")
+print("4. Mark Attendance")
+print("5. View Attendance")
+print("6. Attendance Report")
+print("7. Exit")
